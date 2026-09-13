@@ -1,0 +1,27 @@
+name: Build Firmware
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y squashfs-tools curl python3
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Run Customizer
+        run: |
+          uv run main.py
+
+      - name: Save Firmware Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rooted-nebula-v1.1.0.30
+          path: "*.img"
