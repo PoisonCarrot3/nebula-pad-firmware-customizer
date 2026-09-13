@@ -12,13 +12,21 @@ jobs:
       - name: Setup Tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y squashfs-tools curl python3
+          sudo apt-get install -y squashfs-tools curl python3 wget p7zip-full
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
+      - name: Pre-download Stock Firmware
+        run: |
+          mkdir -p firmware
+          wget -O firmware_pack.zip "https://file2-cdn.creality.com/file/af5a305285744fa5b5dc98c4a52efcbe/Nebula_ota_img_V1.1.0.30.zip" || \
+          wget -O firmware_pack.zip "https://img.creality.com/file/af5a305285744fa5b5dc98c4a52efcbe/Nebula_ota_img_V1.1.0.30.zip"
+          7z e firmware_pack.zip -ofirmware/ -r "*.img" -y
+          ls -la firmware/
+
       - name: Run Customizer
         run: |
-          uv run main.py
+          uv run main.py --source-version 1.1.0.30
 
       - name: Save Firmware Artifact
         uses: actions/upload-artifact@v4
